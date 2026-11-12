@@ -1,0 +1,97 @@
+﻿
+@model StudentGradeManagement.Mvc.Models.Grades.GradeFormViewModel
+
+@{
+    ViewData["Title"] = "Create Grade";
+}
+
+<div class="container py-4">
+    <h2>Create Grade</h2>
+    <p class="text-muted">Enter the student's academic record.</p>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="StudentId" class="form-label">
+                        Student
+                    </label>
+                    <select asp-for="StudentId" class="form-select">
+                        <option value="0">Select a student</option>
+                        @foreach (var student in Model.Students)
+                        {
+                            <option value="@student.StudentId">
+                                @student.StudentNumber - @student.StudentName
+                            </option>
+                        }
+                    </select>
+                    <span asp-validation-for="StudentId"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SubjectCode" class="form-label"></label>
+                        <input asp-for="SubjectCode" class="form-control" />
+                        <span asp-validation-for="SubjectCode"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SubjectName" class="form-label"></label>
+                        <input asp-for="SubjectName" class="form-control" />
+                        <span asp-validation-for="SubjectName"
+                              class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Grade" class="form-label"></label>
+                    <input asp-for="Grade" type="number"
+                           min="0" max="100" class="form-control" />
+                    <span asp-validation-for="Grade"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Semester" class="form-label"></label>
+                        <select asp-for="Semester" class="form-select">
+                            <option value="">Select semester</option>
+                            <option>1st Semester</option>
+                            <option>2nd Semester</option>
+                            <option>Summer</option>
+                        </select>
+                        <span asp-validation-for="Semester"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SchoolYear" class="form-label"></label>
+                        <input asp-for="SchoolYear"
+                               class="form-control"
+                               placeholder="2026-2027" />
+                        <span asp-validation-for="SchoolYear"
+                              class="text-danger"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Save Grade
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
