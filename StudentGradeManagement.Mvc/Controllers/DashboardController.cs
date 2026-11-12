@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Authentication;
@@ -20,14 +20,9 @@ public class DashboardController : Controller
     }
 
     [Authorize(Roles = "Student")]
-    public async Task<IActionResult> Student()
+    public IActionResult Student()
     {
-        var grades = await GetGradesAsync("api/Grades/my");
-
-        if (grades is null)
-            return View("ApiError");
-
-        return View(grades);
+        return View();
     }
 
     [Authorize(Roles = "Faculty")]
@@ -39,6 +34,21 @@ public class DashboardController : Controller
             return View("ApiError");
 
         return View(grades);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Student")]
+    public async Task<IActionResult> GetMyGrades()
+    {
+        var grades = await GetGradesAsync("api/Grades/my");
+
+        if (grades is null)
+            return StatusCode(502, new
+            {
+                message = "Unable to retrieve your grades. Please try again."
+            });
+
+        return Ok(grades);
     }
 
     private async Task<List<GradeViewModel>?> GetGradesAsync(string endpoint)
@@ -55,7 +65,7 @@ public class DashboardController : Controller
 
         using var response = await client.GetAsync(endpoint);
 
-        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
             await HttpContext.SignOutAsync();
             return null;
@@ -64,6 +74,41 @@ public class DashboardController : Controller
         if (!response.IsSuccessStatusCode)
             return null;
 
-        return await response.Content.ReadFromJsonAsync<List<GradeViewModel>>();
+        return await response.Content
+            .ReadFromJsonAsync<List<GradeViewModel>>();
+    }
+    [HttpGet]
+    [Authorize(Roles = "Student")]
+    public async Task<IActionResult> GetMyProfile()
+    {
+        var profile = await GetProfileAsync();
+
+        if (profile is null)
+            return StatusCode(502, new
+            {
+                message = "Unable to retrieve your student profile."
+            });
+
+        return Ok(profile);
+    }
+
+    private async Task<StudentProfileViewModel?> GetProfileAsync()
+    {
+        var token = await HttpContext.GetTokenAsync("access_token");
+
+        if (string.IsNullOrWhiteSpace(token))
+            return null;
+
+        var client = _httpClientFactory.CreateClient("AcademicApi");
+
+        client.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+        using var response = await client.GetAsync("api/Grades/my/profile");
+
+        if (!response.IsSuccessStatusCode)
+            return null;
+
+        return await response.Content.ReadFromJsonAsync<StudentProfileViewModel>();
     }
 }
