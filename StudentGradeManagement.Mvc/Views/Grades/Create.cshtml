@@ -5,11 +5,19 @@
     ViewData["Title"] = "Create Grade";
 }
 
-<div class="container py-4">
-    <h2>Create Grade</h2>
-    <p class="text-muted">Enter the student's academic record.</p>
+<div class="container py-4 py-lg-5">
+    <header class="page-heading">
+        <div class="page-eyebrow">
+            <i class="bi bi-journal-plus"></i>
+            Grade Management
+        </div>
+        <h1 class="page-title">Add Grade Record</h1>
+        <p class="page-description">
+            Complete the form below to record a student's academic result.
+        </p>
+    </header>
 
-    <div class="card shadow-sm">
+    <section class="card form-page-card">
         <div class="card-body">
             <form asp-action="Create" method="post">
                 @Html.AntiForgeryToken()
@@ -17,12 +25,17 @@
                 <div asp-validation-summary="ModelOnly"
                      class="alert alert-danger"></div>
 
-                <div class="mb-3">
+                <h2 class="form-section-title">
+                    <i class="bi bi-person-badge me-2"></i>
+                    Student Information
+                </h2>
+
+                <div class="field-group">
                     <label asp-for="StudentId" class="form-label">
-                        Student
+                        Select Student
                     </label>
                     <select asp-for="StudentId" class="form-select">
-                        <option value="0">Select a student</option>
+                        <option value="0">Choose a student...</option>
                         @foreach (var student in Model.Students)
                         {
                             <option value="@student.StudentId">
@@ -30,66 +43,103 @@
                             </option>
                         }
                     </select>
+                    <span class="form-hint">
+                        Choose the student whose grade you are recording.
+                    </span>
                     <span asp-validation-for="StudentId"
-                          class="text-danger"></span>
+                          class="text-danger small"></span>
                 </div>
 
+                <hr class="my-4" />
+
+                <h2 class="form-section-title">
+                    <i class="bi bi-book me-2"></i>
+                    Subject and Grade Details
+                </h2>
+
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6 field-group">
                         <label asp-for="SubjectCode" class="form-label"></label>
-                        <input asp-for="SubjectCode" class="form-control" />
+                        <input asp-for="SubjectCode"
+                               class="form-control"
+                               placeholder="Example: IT101" />
                         <span asp-validation-for="SubjectCode"
-                              class="text-danger"></span>
+                              class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6 field-group">
                         <label asp-for="SubjectName" class="form-label"></label>
-                        <input asp-for="SubjectName" class="form-control" />
+                        <input asp-for="SubjectName"
+                               class="form-control"
+                               placeholder="Example: Introduction to Computing" />
                         <span asp-validation-for="SubjectName"
-                              class="text-danger"></span>
+                              class="text-danger small"></span>
                     </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="field-group">
                     <label asp-for="Grade" class="form-label"></label>
-                    <input asp-for="Grade" type="number"
-                           min="0" max="100" class="form-control" />
+                    <input asp-for="Grade"
+                           type="number"
+                           min="0"
+                           max="100"
+                           step="1"
+                           class="form-control"
+                           placeholder="Enter a grade from 0 to 100" />
+                    <span class="form-hint">
+                        Enter a whole-number grade between 0 and 100.
+                    </span>
                     <span asp-validation-for="Grade"
-                          class="text-danger"></span>
+                          class="text-danger small"></span>
                 </div>
+
+                <hr class="my-4" />
+
+                <h2 class="form-section-title">
+                    <i class="bi bi-calendar3 me-2"></i>
+                    Academic Period
+                </h2>
 
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6 field-group">
                         <label asp-for="Semester" class="form-label"></label>
                         <select asp-for="Semester" class="form-select">
-                            <option value="">Select semester</option>
+                            <option value="">Choose semester...</option>
                             <option>1st Semester</option>
                             <option>2nd Semester</option>
                             <option>Summer</option>
                         </select>
                         <span asp-validation-for="Semester"
-                              class="text-danger"></span>
+                              class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6 field-group">
                         <label asp-for="SchoolYear" class="form-label"></label>
                         <input asp-for="SchoolYear"
                                class="form-control"
                                placeholder="2026-2027" />
+                        <span class="form-hint">
+                            Format: YYYY-YYYY
+                        </span>
                         <span asp-validation-for="SchoolYear"
-                              class="text-danger"></span>
+                              class="text-danger small"></span>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
-                    Save Grade
-                </button>
-                <a asp-action="Index" class="btn btn-secondary">
-                    Cancel
-                </a>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i>
+                        Save Grade
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-x-lg"></i>
+                        Cancel
+                    </a>
+                </div>
             </form>
         </div>
-    </div>
+    </section>
 </div>
 
 @section Scripts {

@@ -1,34 +1,51 @@
-﻿@model List<StudentGradeManagement.Mvc.Models.Grades.GradeViewModel>
+﻿
+@model List<StudentGradeManagement.Mvc.Models.Grades.GradeViewModel>
 
 @{
     ViewData["Title"] = "Faculty Dashboard";
 }
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2>Faculty Dashboard</h2>
-            <p class="text-muted">Student academic records</p>
-        </div>
-        <div>
+<div class="container py-4 py-lg-5">
+    <header class="page-heading">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <div class="page-eyebrow">
+                    <i class="bi bi-person-workspace"></i>
+                    Faculty Portal
+                </div>
+                <h1 class="page-title">Faculty Dashboard</h1>
+                <p class="page-description">
+                    Review student academic records and manage grades.
+                </p>
+            </div>
+
             <a asp-controller="Grades" asp-action="Index"
-               class="btn btn-primary">Manage Grades</a>
-
-            <form asp-controller="Auth" asp-action="Logout"
-                  method="post" class="d-inline">
-                @Html.AntiForgeryToken()
-                <button class="btn btn-outline-danger">Logout</button>
-            </form>
+               class="btn btn-primary">
+                <i class="bi bi-pencil-square"></i>
+                Manage Grades
+            </a>
         </div>
-    </div>
+    </header>
 
-    <div class="card shadow-sm">
+    <section class="card">
         <div class="card-body">
-            <h5 class="mb-3">All Student Grades</h5>
+            <div class="mb-4">
+                <h2 class="card-heading">
+                    <i class="bi bi-journal-text me-2"></i>
+                    All Student Grades
+                </h2>
+                <p class="card-description">
+                    Academic records currently available in the system.
+                </p>
+            </div>
 
-            @if (Model.Count == 0)
+            @if (Model == null || Model.Count == 0)
             {
-                <p class="text-muted">No grades available.</p>
+                <div class="state-message text-center py-4">
+                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                    <strong>No grade records found.</strong>
+                    <div class="mt-1">Student grade records will appear here once added.</div>
+                </div>
             }
             else
             {
@@ -36,24 +53,34 @@
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>
-                                <th>Student Number</th>
-                                <th>Student Name</th>
-                                <th>Subject</th>
-                                <th>Grade</th>
-                                <th>Remarks</th>
-                                <th>Semester</th>
-                                <th>School Year</th>
+                                <th scope="col">Student Number</th>
+                                <th scope="col">Student Name</th>
+                                <th scope="col">Subject</th>
+                                <th scope="col">Grade</th>
+                                <th scope="col">Remarks</th>
+                                <th scope="col">Semester</th>
+                                <th scope="col">School Year</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model)
                             {
+                                var failed = item.Remarks == "BEP/FAILED";
+
                                 <tr>
-                                    <td>@item.StudentNumber</td>
+                                    <td><strong>@item.StudentNumber</strong></td>
                                     <td>@item.StudentName</td>
-                                    <td>@item.SubjectCode - @item.SubjectName</td>
+                                    <td>
+                                        <strong>@item.SubjectCode</strong>
+                                        <div class="text-muted small">@item.SubjectName</div>
+                                    </td>
                                     <td><strong>@item.Grade</strong></td>
-                                    <td>@item.Remarks</td>
+                                    <td>
+                                        <span class="status-badge @(failed ? "status-fail" : "status-pass")">
+                                            <i class="bi @(failed ? "bi-exclamation-circle" : "bi-check-circle")"></i>
+                                            @item.Remarks
+                                        </span>
+                                    </td>
                                     <td>@item.Semester</td>
                                     <td>@item.SchoolYear</td>
                                 </tr>
@@ -63,5 +90,5 @@
                 </div>
             }
         </div>
-    </div>
+    </section>
 </div>

@@ -2,12 +2,16 @@
     ViewData["Title"] = "Connection Error";
 }
 
-<div class="container py-5 text-center">
-    <h2>Unable to Load Dashboard</h2>
-    <p class="text-muted">
-        The API did not return your academic records.
-        Check that the API is running and try again.
-    </p>
-    <a asp-controller="Home" asp-action="Index"
-       class="btn btn-primary">Try Again</a>
+<div class="container py-5">
+    <div class="card mx-auto text-center" style="max-width: 520px;">
+        <div class="card-body p-5">
+            <h1 class="page-title">Unable to Load Dashboard</h1>
+            <p class="text-muted mb-4">
+                The API did not return your academic records.
+                Check that the API is running and try again.
+            </p>
+            <a asp-controller="Home" asp-action="Index"
+               class="btn btn-primary">Try Again</a>
+        </div>
+    </div>
 </div>
