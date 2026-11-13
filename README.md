@@ -65,7 +65,7 @@ Grade remarks are calculated by the server. Client-submitted remarks are not tru
 - Microsoft SQL Server 2019 or a compatible SQL Server version
 - SQL Server Management Studio (SSMS)
 - Git
-- Postman (for API testing)
+- Postman
 
 ## Project Structure
 
@@ -77,6 +77,9 @@ ErlLorenceNievera_WebSystemFinalProject/
 ├── StudentGradeManagement.Domain/
 ├── StudentGradeManagement.Infrastructure/
 ├── StudentGradeManagement.Mvc/
+│
+├── Postman/
+│   └── StudentGradeManagement.postman_collection.json
 │
 ├── ErlLorenceNievera_WebSystemFinalProject.sln
 ├── README.md
@@ -162,7 +165,8 @@ For Windows Authentication, ensure that the Windows account running the applicat
 - Existing account passwords are not reset when `DemoAccounts:ResetExistingPasswords` is set to `false`.
 - The supplied database contains existing Identity account records and password hashes.
 - Preserve the existing account records and their student/faculty mappings.
-- Use the appropriate existing demo account credentials when testing the application.
+- Existing accounts require their corresponding valid passwords to authenticate.
+- The project author must provide the authorized demonstration credentials privately, or the instructor must configure accounts through an approved setup procedure.
 
 ### 3. Verify MVC API Configuration
 
@@ -256,7 +260,26 @@ The MVC application communicates with the Web API through its configured HTTP cl
 | GET | `/api/Grades/my` | Retrieve authenticated student's grades |
 | GET | `/api/Grades/my/profile` | Retrieve authenticated student's profile |
 
-## Testing
+## API Testing with Postman
+
+An exported Postman collection is included in the repository.
+
+**Collection file:**
+
+```text
+Postman/StudentGradeManagement.postman_collection.json
+```
+
+### Import the Collection
+
+1. Open Postman.
+2. Select **Import**.
+3. Choose the `StudentGradeManagement.postman_collection.json` file.
+4. Import the collection.
+5. Configure the required request URLs and authentication credentials for your local environment.
+6. Run the requests to test the API endpoints.
+
+### Testing Coverage
 
 API endpoints and security behavior are tested using Postman.
 
@@ -265,6 +288,7 @@ Testing includes:
 - Successful and unsuccessful authentication.
 - Faculty grade CRUD operations.
 - Grade validation for values outside 0–100.
+- Rejection of decimal grade values.
 - Automatic grade remarks calculation.
 - Duplicate grade prevention.
 - Student access restrictions.
