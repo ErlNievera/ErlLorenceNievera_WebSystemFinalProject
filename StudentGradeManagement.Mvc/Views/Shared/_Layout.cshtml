@@ -1,73 +1,263 @@
 ﻿
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    var isFaculty = User.IsInRole("Faculty");
+    var isStudent = User.IsInRole("Student");
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+
+    var dashboardActive = currentController == "Dashboard";
+    var gradesActive = currentController == "Grades";
+    var userRole = isFaculty ? "Faculty" : isStudent ? "Student" : "User";
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#172554" />
+
     <title>@ViewData["Title"] - Student Grade Management</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet" />
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
 </head>
+
 <body>
     <nav class="navbar app-navbar">
-        <div class="container">
+        <div class="container-fluid px-3 px-lg-4">
+
+            <!-- Brand -->
             <a class="navbar-brand d-flex align-items-center gap-2"
-               asp-controller="Home" asp-action="Index">
+               asp-controller="Home"
+               asp-action="Index"
+               aria-label="Student Grade Management home">
+
                 <span class="brand-icon">
                     <i class="bi bi-mortarboard-fill"></i>
                 </span>
-                <span>
+
+                <span class="brand-text">
                     <span class="brand-name">Student Grade Management</span>
                     <small class="brand-caption d-block">Academic Portal</small>
                 </span>
             </a>
 
-            @if (User.Identity?.IsAuthenticated == true)
+            @if (isAuthenticated)
             {
-                <div class="ms-auto d-flex align-items-center gap-3">
-                    <div class="user-info d-none d-sm-flex align-items-center gap-2">
-                        <span class="user-avatar">
-                            <i class="bi bi-person-fill"></i>
-                        </span>
-                        <span>
-                            <strong class="user-name d-block">@User.Identity.Name</strong>
-                            <small class="user-role">
-                                @(User.IsInRole("Faculty") ? "Faculty" :
-                                  User.IsInRole("Student") ? "Student" : "User")
-                            </small>
-                        </span>
+                <!-- Desktop navigation -->
+                <div class="desktop-navigation ms-auto d-none d-md-flex align-items-center gap-3">
+
+                    <div class="portal-navigation d-flex align-items-center gap-1">
+
+                        @if (isFaculty)
+                        {
+                            <a class="portal-nav-link @(dashboardActive ? "active" : "")"
+                               asp-controller="Dashboard"
+                               asp-action="Faculty"
+                               aria-current="@(dashboardActive ? "page" : null)">
+                                <i class="bi bi-grid me-1"></i>
+                                Dashboard
+                            </a>
+
+                            <a class="portal-nav-link @(gradesActive ? "active" : "")"
+                               asp-controller="Grades"
+                               asp-action="Index"
+                               aria-current="@(gradesActive ? "page" : null)">
+                                <i class="bi bi-journal-check me-1"></i>
+                                Manage Grades
+                            </a>
+                        }
+                        else if (isStudent)
+                        {
+                            <a class="portal-nav-link @(dashboardActive ? "active" : "")"
+                               asp-controller="Dashboard"
+                               asp-action="Student"
+                               aria-current="@(dashboardActive ? "page" : null)">
+                                <i class="bi bi-grid me-1"></i>
+                                My Dashboard
+                            </a>
+                        }
                     </div>
 
-                    <form asp-controller="Auth" asp-action="Logout" method="post">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-quiet btn-sm">
-                            <i class="bi bi-box-arrow-right me-1"></i>
-                            Logout
+                    <!-- Desktop profile dropdown -->
+                    <div class="dropdown">
+                        <button class="user-menu-button dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+
+                            <span class="user-avatar">
+                                <i class="bi bi-person-fill"></i>
+                            </span>
+
+                            <span class="user-menu-text">
+                                <strong class="user-name d-block">
+                                    @User.Identity?.Name
+                                </strong>
+                                <small class="user-role">@userRole</small>
+                            </span>
+
+                            <i class="bi bi-chevron-down user-menu-chevron"></i>
                         </button>
-                    </form>
+
+                        <ul class="dropdown-menu dropdown-menu-end profile-dropdown">
+                            <li class="profile-dropdown-heading">
+                                <span class="profile-dropdown-avatar">
+                                    <i class="bi bi-person-fill"></i>
+                                </span>
+                                <span>
+                                    <strong>@User.Identity?.Name</strong>
+                                    <small>@userRole Account</small>
+                                </span>
+                            </li>
+
+                            <li><hr class="dropdown-divider" /></li>
+
+                            <li>
+                                <form asp-controller="Auth"
+                                      asp-action="Logout"
+                                      method="post"
+                                      class="m-0">
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit"
+                                            class="dropdown-item profile-logout">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                        Sign out
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
+
+                <!-- Mobile navigation trigger -->
+                <button class="mobile-menu-toggle d-md-none ms-auto"
+                        type="button"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#mobileNavigation"
+                        aria-controls="mobileNavigation"
+                        aria-label="Open navigation menu">
+                    <i class="bi bi-list"></i>
+                </button>
             }
         </div>
     </nav>
+
+    @if (isAuthenticated)
+    {
+        <!-- Mobile offcanvas navigation -->
+        <div class="offcanvas offcanvas-end mobile-navigation"
+             tabindex="-1"
+             id="mobileNavigation"
+             aria-labelledby="mobileNavigationTitle">
+
+            <div class="offcanvas-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="brand-icon">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </span>
+                    <div>
+                        <h5 class="offcanvas-title" id="mobileNavigationTitle">
+                            Academic Portal
+                        </h5>
+                        <small class="text-muted">@userRole Account</small>
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="offcanvas"
+                        aria-label="Close menu">
+                </button>
+            </div>
+
+            <div class="offcanvas-body">
+                <div class="mobile-user-card">
+                    <span class="user-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </span>
+                    <span>
+                        <strong class="d-block">@User.Identity?.Name</strong>
+                        <small>@userRole</small>
+                    </span>
+                </div>
+
+                <div class="mobile-navigation-label">MENU</div>
+
+                <nav class="mobile-navigation-links" aria-label="Mobile navigation">
+
+                    @if (isFaculty)
+                    {
+                        <a class="mobile-nav-link @(dashboardActive ? "active" : "")"
+                           asp-controller="Dashboard"
+                           asp-action="Faculty"
+                           aria-current="@(dashboardActive ? "page" : null)">
+                            <i class="bi bi-grid"></i>
+                            Dashboard
+                        </a>
+
+                        <a class="mobile-nav-link @(gradesActive ? "active" : "")"
+                           asp-controller="Grades"
+                           asp-action="Index"
+                           aria-current="@(gradesActive ? "page" : null)">
+                            <i class="bi bi-journal-check"></i>
+                            Manage Grades
+                        </a>
+                    }
+                    else if (isStudent)
+                    {
+                        <a class="mobile-nav-link @(dashboardActive ? "active" : "")"
+                           asp-controller="Dashboard"
+                           asp-action="Student"
+                           aria-current="@(dashboardActive ? "page" : null)">
+                            <i class="bi bi-grid"></i>
+                            My Dashboard
+                        </a>
+                    }
+                </nav>
+
+                <div class="mobile-logout-section">
+                    <form asp-controller="Auth"
+                          asp-action="Logout"
+                          method="post">
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit" class="mobile-logout-button">
+                            <i class="bi bi-box-arrow-right"></i>
+                            Sign out
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
 
     <main class="app-main">
         @RenderBody()
     </main>
 
     <footer class="app-footer">
-        <div class="container d-flex justify-content-between flex-wrap gap-2">
+        <div class="container-fluid px-3 px-lg-4 d-flex justify-content-between flex-wrap gap-2">
             <span>Student Grade Management System</span>
-            <span>Academic Portal</span>
+            <span>Academic Portal &copy; @DateTime.Now.Year</span>
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

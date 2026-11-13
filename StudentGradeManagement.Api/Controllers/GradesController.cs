@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -26,20 +27,61 @@ public class GradesController : ControllerBase
         User.FindFirstValue(ClaimTypes.NameIdentifier)
         ?? User.FindFirstValue("sub");
 
-    // STUDENT: View only their own grades.
-    [HttpGet("my")]
+    // ==========================================
+    // STUDENT: VIEW OWN PROFILE
+    // GET: api/Grades/my/profile
+    // ==========================================
+
+    [HttpGet("my/profile")]
     [Authorize(Roles = ApplicationRoles.Student)]
-    public async Task<IActionResult> GetMyGrades()
+    public async Task<IActionResult> GetMyProfile()
     {
         var student = await _context.Students
+            .AsNoTracking()
             .FirstOrDefaultAsync(s =>
                 s.IdentityUserId == CurrentUserId &&
                 s.IsActive);
 
         if (student == null)
-            return NotFound(new { message = "Student record not found." });
+        {
+            return NotFound(new
+            {
+                message = "Student record not found."
+            });
+        }
+
+        return Ok(new
+        {
+            studentName = $"{student.FirstName} {student.LastName}",
+            studentNumber = student.StudentNumber
+        });
+    }
+
+    // ==========================================
+    // STUDENT: VIEW OWN GRADES
+    // GET: api/Grades/my
+    // ==========================================
+
+    [HttpGet("my")]
+    [Authorize(Roles = ApplicationRoles.Student)]
+    public async Task<IActionResult> GetMyGrades()
+    {
+        var student = await _context.Students
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s =>
+                s.IdentityUserId == CurrentUserId &&
+                s.IsActive);
+
+        if (student == null)
+        {
+            return NotFound(new
+            {
+                message = "Student record not found."
+            });
+        }
 
         var grades = await _context.StudentGrades
+            .AsNoTracking()
             .Include(g => g.Student)
             .Include(g => g.Faculty)
             .Where(g => g.StudentId == student.StudentId)
@@ -50,12 +92,17 @@ public class GradesController : ControllerBase
         return Ok(grades);
     }
 
-    // FACULTY: View all grades.
+    // ==========================================
+    // FACULTY: VIEW ALL GRADES
+    // GET: api/Grades
+    // ==========================================
+
     [HttpGet]
     [Authorize(Roles = ApplicationRoles.Faculty)]
     public async Task<IActionResult> GetAllGrades()
     {
         var grades = await _context.StudentGrades
+            .AsNoTracking()
             .Include(g => g.Student)
             .Include(g => g.Faculty)
             .OrderBy(g => g.Student.StudentNumber)
@@ -65,26 +112,41 @@ public class GradesController : ControllerBase
         return Ok(grades);
     }
 
-    // FACULTY: View one grade.
+    // ==========================================
+    // FACULTY: VIEW ONE GRADE
+    // GET: api/Grades/{id}
+    // ==========================================
+
     [HttpGet("{id:int}")]
     [Authorize(Roles = ApplicationRoles.Faculty)]
     public async Task<IActionResult> GetGrade(int id)
     {
         var grade = await _context.StudentGrades
+            .AsNoTracking()
             .Include(g => g.Student)
             .Include(g => g.Faculty)
             .FirstOrDefaultAsync(g => g.GradeId == id);
 
         if (grade == null)
-            return NotFound(new { message = "Grade record not found." });
+        {
+            return NotFound(new
+            {
+                message = "Grade record not found."
+            });
+        }
 
         return Ok(ToResponse(grade));
     }
 
-    // FACULTY: Create grade.
+    // ==========================================
+    // FACULTY: CREATE GRADE
+    // POST: api/Grades
+    // ==========================================
+
     [HttpPost]
     [Authorize(Roles = ApplicationRoles.Faculty)]
-    public async Task<IActionResult> CreateGrade(CreateGradeRequest request)
+    public async Task<IActionResult> CreateGrade(
+        CreateGradeRequest request)
     {
         var faculty = await GetCurrentFacultyAsync();
 
@@ -97,7 +159,12 @@ public class GradesController : ControllerBase
                 s.IsActive);
 
         if (student == null)
-            return NotFound(new { message = "Active student not found." });
+        {
+            return NotFound(new
+            {
+                message = "Active student not found."
+            });
+        }
 
         var duplicate = await _context.StudentGrades.AnyAsync(g =>
             g.StudentId == request.StudentId &&
@@ -106,7 +173,12 @@ public class GradesController : ControllerBase
             g.SchoolYear == request.SchoolYear);
 
         if (duplicate)
-            return Conflict(new { message = "This student already has a grade for this subject, semester, and school year." });
+        {
+            return Conflict(new
+            {
+                message = "This student already has a grade for this subject, semester, and school year."
+            });
+        }
 
         var grade = new StudentGrade
         {
@@ -122,10 +194,16 @@ public class GradesController : ControllerBase
         };
 
         _context.StudentGrades.Add(grade);
+
         await _context.SaveChangesAsync();
 
-        await _context.Entry(grade).Reference(g => g.Student).LoadAsync();
-        await _context.Entry(grade).Reference(g => g.Faculty).LoadAsync();
+        await _context.Entry(grade)
+            .Reference(g => g.Student)
+            .LoadAsync();
+
+        await _context.Entry(grade)
+            .Reference(g => g.Faculty)
+            .LoadAsync();
 
         return CreatedAtAction(
             nameof(GetGrade),
@@ -133,7 +211,11 @@ public class GradesController : ControllerBase
             ToResponse(grade));
     }
 
-    // FACULTY: Update grade.
+    // ==========================================
+    // FACULTY: UPDATE GRADE
+    // PUT: api/Grades/{id}
+    // ==========================================
+
     [HttpPut("{id:int}")]
     [Authorize(Roles = ApplicationRoles.Faculty)]
     public async Task<IActionResult> UpdateGrade(
@@ -149,13 +231,24 @@ public class GradesController : ControllerBase
             .FirstOrDefaultAsync(g => g.GradeId == id);
 
         if (grade == null)
-            return NotFound(new { message = "Grade record not found." });
+        {
+            return NotFound(new
+            {
+                message = "Grade record not found."
+            });
+        }
 
         var studentExists = await _context.Students.AnyAsync(s =>
-            s.StudentId == request.StudentId && s.IsActive);
+            s.StudentId == request.StudentId &&
+            s.IsActive);
 
         if (!studentExists)
-            return NotFound(new { message = "Active student not found." });
+        {
+            return NotFound(new
+            {
+                message = "Active student not found."
+            });
+        }
 
         var duplicate = await _context.StudentGrades.AnyAsync(g =>
             g.GradeId != id &&
@@ -165,7 +258,12 @@ public class GradesController : ControllerBase
             g.SchoolYear == request.SchoolYear);
 
         if (duplicate)
-            return Conflict(new { message = "Another grade already exists for this subject, semester, and school year." });
+        {
+            return Conflict(new
+            {
+                message = "Another grade already exists for this subject, semester, and school year."
+            });
+        }
 
         grade.StudentId = request.StudentId;
         grade.SubjectCode = request.SubjectCode.Trim();
@@ -179,13 +277,22 @@ public class GradesController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        await _context.Entry(grade).Reference(g => g.Student).LoadAsync();
-        await _context.Entry(grade).Reference(g => g.Faculty).LoadAsync();
+        await _context.Entry(grade)
+            .Reference(g => g.Student)
+            .LoadAsync();
+
+        await _context.Entry(grade)
+            .Reference(g => g.Faculty)
+            .LoadAsync();
 
         return Ok(ToResponse(grade));
     }
 
-    // FACULTY: Delete grade.
+    // ==========================================
+    // FACULTY: DELETE GRADE
+    // DELETE: api/Grades/{id}
+    // ==========================================
+
     [HttpDelete("{id:int}")]
     [Authorize(Roles = ApplicationRoles.Faculty)]
     public async Task<IActionResult> DeleteGrade(int id)
@@ -194,13 +301,47 @@ public class GradesController : ControllerBase
             .FirstOrDefaultAsync(g => g.GradeId == id);
 
         if (grade == null)
-            return NotFound(new { message = "Grade record not found." });
+        {
+            return NotFound(new
+            {
+                message = "Grade record not found."
+            });
+        }
 
         _context.StudentGrades.Remove(grade);
+
         await _context.SaveChangesAsync();
 
         return NoContent();
     }
+
+    // ==========================================
+    // FACULTY: GET STUDENTS
+    // GET: api/Grades/students
+    // ==========================================
+
+    [HttpGet("students")]
+    [Authorize(Roles = ApplicationRoles.Faculty)]
+    public async Task<IActionResult> GetStudents()
+    {
+        var students = await _context.Students
+            .AsNoTracking()
+            .Where(s => s.IsActive)
+            .OrderBy(s => s.StudentNumber)
+            .Select(s => new
+            {
+                s.StudentId,
+                s.StudentNumber,
+                StudentName = s.FirstName + " " + s.LastName
+            })
+            .ToListAsync();
+
+        return Ok(students);
+    }
+
+    // ==========================================
+    // HELPER: GET CURRENT FACULTY
+    // ==========================================
 
     private async Task<Faculty?> GetCurrentFacultyAsync()
     {
@@ -209,6 +350,10 @@ public class GradesController : ControllerBase
                 f.IdentityUserId == CurrentUserId &&
                 f.IsActive);
     }
+
+    // ==========================================
+    // HELPER: CONVERT GRADE TO RESPONSE
+    // ==========================================
 
     private static GradeResponse ToResponse(StudentGrade grade)
     {
@@ -228,24 +373,5 @@ public class GradesController : ControllerBase
             DatePosted = grade.DatePosted,
             DateModified = grade.DateModified
         };
-    }
-
-    [HttpGet("students")]
-    [Authorize(Roles = "Faculty")]
-    public async Task<IActionResult> GetStudents()
-    {
-        var students = await _context.Students
-            .AsNoTracking()
-            .Where(s => s.IsActive)
-            .OrderBy(s => s.StudentNumber)
-            .Select(s => new
-            {
-                s.StudentId,
-                s.StudentNumber,
-                StudentName = s.FirstName + " " + s.LastName
-            })
-            .ToListAsync();
-
-        return Ok(students);
     }
 }

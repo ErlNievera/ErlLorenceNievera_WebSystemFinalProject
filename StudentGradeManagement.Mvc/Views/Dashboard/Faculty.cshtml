@@ -1,82 +1,137 @@
-﻿
-@model List<StudentGradeManagement.Mvc.Models.Grades.GradeViewModel>
+﻿@model List<StudentGradeManagement.Mvc.Models.Grades.GradeViewModel>
 
 @{
     ViewData["Title"] = "Faculty Dashboard";
+    var grades = Model ?? new List<StudentGradeManagement.Mvc.Models.Grades.GradeViewModel>();
+    var failedCount = grades.Count(x => x.Remarks == "BEP/FAILED");
+    var passedCount = grades.Count - failedCount;
+    var studentCount = grades.Select(x => x.StudentNumber).Distinct().Count();
+    var subjectCount = grades.Select(x => x.SubjectCode).Distinct().Count();
 }
 
-<div class="container py-4 py-lg-5">
-    <header class="page-heading">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-            <div>
-                <div class="page-eyebrow">
-                    <i class="bi bi-person-workspace"></i>
-                    Faculty Portal
-                </div>
-                <h1 class="page-title">Faculty Dashboard</h1>
-                <p class="page-description">
-                    Review student academic records and manage grades.
-                </p>
-            </div>
+<div class="container py-4 py-lg-5 faculty-dashboard">
 
-            <a asp-controller="Grades" asp-action="Index"
-               class="btn btn-primary">
-                <i class="bi bi-pencil-square"></i>
-                Manage Grades
-            </a>
+    <header class="faculty-hero mb-4">
+        <div>
+            <span class="faculty-eyebrow">
+                <i class="bi bi-person-workspace"></i>
+                FACULTY PORTAL
+            </span>
+            <h1>Faculty Dashboard</h1>
+            <p>Monitor academic records and manage student grades in one place.</p>
         </div>
+
+        <a asp-controller="Grades" asp-action="Index" class="btn btn-light faculty-hero-button">
+            <i class="bi bi-pencil-square"></i>
+            Manage Grades
+        </a>
     </header>
 
-    <section class="card">
-        <div class="card-body">
-            <div class="mb-4">
-                <h2 class="card-heading">
-                    <i class="bi bi-journal-text me-2"></i>
-                    All Student Grades
-                </h2>
-                <p class="card-description">
-                    Academic records currently available in the system.
-                </p>
+    <section class="faculty-stat-grid mb-4">
+        <article class="faculty-stat-card">
+            <div class="faculty-stat-icon stat-icon-indigo">
+                <i class="bi bi-journal-check"></i>
+            </div>
+            <div>
+                <span>Total Grade Records</span>
+                <strong>@grades.Count</strong>
+                <small>Records in the system</small>
+            </div>
+        </article>
+
+        <article class="faculty-stat-card">
+            <div class="faculty-stat-icon stat-icon-blue">
+                <i class="bi bi-people"></i>
+            </div>
+            <div>
+                <span>Students</span>
+                <strong>@studentCount</strong>
+                <small>Unique student records</small>
+            </div>
+        </article>
+
+        <article class="faculty-stat-card">
+            <div class="faculty-stat-icon stat-icon-teal">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div>
+                <span>Passing Records</span>
+                <strong>@passedCount</strong>
+                <small>Not marked as failed</small>
+            </div>
+        </article>
+
+        <article class="faculty-stat-card">
+            <div class="faculty-stat-icon stat-icon-red">
+                <i class="bi bi-exclamation-circle"></i>
+            </div>
+            <div>
+                <span>Failed Records</span>
+                <strong>@failedCount</strong>
+                <small>Marked BEP/FAILED</small>
+            </div>
+        </article>
+    </section>
+
+    <section class="faculty-panel">
+        <div class="faculty-panel-header">
+            <div>
+                <span class="faculty-section-label">ACADEMIC OVERVIEW</span>
+                <h2>All Student Grades</h2>
+                <p>Review the academic records currently available in the system.</p>
             </div>
 
-            @if (Model == null || Model.Count == 0)
-            {
-                <div class="state-message text-center py-4">
-                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>
-                    <strong>No grade records found.</strong>
-                    <div class="mt-1">Student grade records will appear here once added.</div>
+            <span class="faculty-record-pill">
+                <i class="bi bi-database-check"></i>
+                @grades.Count Records
+            </span>
+        </div>
+
+        @if (grades.Count == 0)
+        {
+            <div class="faculty-empty-state">
+                <div class="faculty-empty-icon">
+                    <i class="bi bi-journal-x"></i>
                 </div>
-            }
-            else
-            {
+                <h3>No grade records yet</h3>
+                <p>Start by adding the first student's academic record.</p>
+                <a asp-controller="Grades" asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i>
+                    Add First Grade
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="faculty-table-wrap">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="table faculty-table align-middle">
                         <thead>
                             <tr>
-                                <th scope="col">Student Number</th>
-                                <th scope="col">Student Name</th>
-                                <th scope="col">Subject</th>
-                                <th scope="col">Grade</th>
-                                <th scope="col">Remarks</th>
-                                <th scope="col">Semester</th>
-                                <th scope="col">School Year</th>
+                                <th>Student Number</th>
+                                <th>Student</th>
+                                <th>Subject</th>
+                                <th>Grade</th>
+                                <th>Remarks</th>
+                                <th>Semester</th>
+                                <th>School Year</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var item in Model)
+                            @foreach (var item in grades)
                             {
                                 var failed = item.Remarks == "BEP/FAILED";
 
                                 <tr>
-                                    <td><strong>@item.StudentNumber</strong></td>
-                                    <td>@item.StudentName</td>
+                                    <td><span class="faculty-student-number">@item.StudentNumber</span></td>
+                                    <td class="faculty-student-name">@item.StudentName</td>
                                     <td>
                                         <strong>@item.SubjectCode</strong>
-                                        <div class="text-muted small">@item.SubjectName</div>
+                                        <small class="faculty-subject-name">@item.SubjectName</small>
                                     </td>
-                                    <td><strong>@item.Grade</strong></td>
+                                    <td><span class="faculty-grade-value">@item.Grade</span></td>
                                     <td>
-                                        <span class="status-badge @(failed ? "status-fail" : "status-pass")">
+                                        <span class="faculty-remark @(failed ? "remark-failed" : "remark-passed")">
                                             <i class="bi @(failed ? "bi-exclamation-circle" : "bi-check-circle")"></i>
                                             @item.Remarks
                                         </span>
@@ -88,7 +143,15 @@
                         </tbody>
                     </table>
                 </div>
-            }
-        </div>
+            </div>
+
+            <div class="faculty-panel-footer">
+                <span>Showing @grades.Count academic records</span>
+                <a asp-controller="Grades" asp-action="Index">
+                    View and manage all grades
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        }
     </section>
 </div>

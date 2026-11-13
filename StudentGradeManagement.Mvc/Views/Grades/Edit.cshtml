@@ -1,41 +1,62 @@
-﻿
-@model StudentGradeManagement.Mvc.Models.Grades.GradeFormViewModel
+﻿@model StudentGradeManagement.Mvc.Models.Grades.GradeFormViewModel
 
 @{
     ViewData["Title"] = "Edit Grade";
 }
 
-<div class="container py-4 py-lg-5">
-    <header class="page-heading">
-        <div class="page-eyebrow">
-            <i class="bi bi-pencil-square"></i>
-            Grade Management
+<div class="container py-4 py-lg-5 faculty-dashboard">
+
+    <header class="faculty-page-heading">
+        <div>
+            <span class="faculty-eyebrow faculty-eyebrow-dark">
+                <i class="bi bi-pencil-square"></i>
+                GRADE MANAGEMENT
+            </span>
+            <h1>Edit Grade Record</h1>
+            <p>Update the student's academic information.</p>
         </div>
-        <h1 class="page-title">Edit Grade Record</h1>
-        <p class="page-description">
-            Update the student's academic information below.
-        </p>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Back to Records
+        </a>
     </header>
 
-    <section class="card form-page-card">
-        <div class="card-body">
-            <form asp-action="Edit"
-                  asp-route-id="@Model.GradeId"
-                  method="post">
-                @Html.AntiForgeryToken()
-                <input asp-for="GradeId" type="hidden" />
+    <section class="faculty-form-panel">
+        <div class="faculty-form-intro">
+            <div class="faculty-form-intro-icon edit-intro-icon">
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <div>
+                <h2>Update Academic Record</h2>
+                <p>Review the information carefully before saving your changes.</p>
+            </div>
+        </div>
 
-                <div asp-validation-summary="ModelOnly"
-                     class="alert alert-danger"></div>
+        <form asp-action="Edit"
+              asp-route-id="@Model.GradeId"
+              method="post">
 
-                <h2 class="form-section-title">
-                    <i class="bi bi-person-badge me-2"></i>
-                    Student Information
-                </h2>
+            @Html.AntiForgeryToken()
+            <input asp-for="GradeId" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="alert alert-danger faculty-validation-summary"></div>
+
+            <div class="faculty-form-section">
+                <div class="faculty-form-section-heading">
+                    <span class="faculty-form-section-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </span>
+                    <div>
+                        <h3>Student Information</h3>
+                        <p>Confirm the student assigned to this record.</p>
+                    </div>
+                </div>
 
                 <div class="field-group">
                     <label asp-for="StudentId" class="form-label">
-                        Select Student
+                        Select Student <span class="required-mark">*</span>
                     </label>
                     <select asp-for="StudentId" class="form-select">
                         @foreach (var student in Model.Students)
@@ -45,92 +66,102 @@
                             </option>
                         }
                     </select>
-                    <span asp-validation-for="StudentId"
-                          class="text-danger small"></span>
+                    <span asp-validation-for="StudentId" class="text-danger small"></span>
                 </div>
+            </div>
 
-                <hr class="my-4" />
-
-                <h2 class="form-section-title">
-                    <i class="bi bi-book me-2"></i>
-                    Subject and Grade Details
-                </h2>
+            <div class="faculty-form-section">
+                <div class="faculty-form-section-heading">
+                    <span class="faculty-form-section-icon">
+                        <i class="bi bi-book"></i>
+                    </span>
+                    <div>
+                        <h3>Subject and Grade Details</h3>
+                        <p>Update the subject information and grade.</p>
+                    </div>
+                </div>
 
                 <div class="row">
                     <div class="col-md-6 field-group">
-                        <label asp-for="SubjectCode" class="form-label"></label>
-                        <input asp-for="SubjectCode"
-                               class="form-control" />
-                        <span asp-validation-for="SubjectCode"
-                              class="text-danger small"></span>
+                        <label asp-for="SubjectCode" class="form-label">
+                            Subject Code <span class="required-mark">*</span>
+                        </label>
+                        <input asp-for="SubjectCode" class="form-control" />
+                        <span asp-validation-for="SubjectCode" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6 field-group">
-                        <label asp-for="SubjectName" class="form-label"></label>
-                        <input asp-for="SubjectName"
-                               class="form-control" />
-                        <span asp-validation-for="SubjectName"
-                              class="text-danger small"></span>
+                        <label asp-for="SubjectName" class="form-label">
+                            Subject Name <span class="required-mark">*</span>
+                        </label>
+                        <input asp-for="SubjectName" class="form-control" />
+                        <span asp-validation-for="SubjectName" class="text-danger small"></span>
                     </div>
                 </div>
 
                 <div class="field-group">
-                    <label asp-for="Grade" class="form-label"></label>
+                    <label asp-for="Grade" class="form-label">
+                        Grade <span class="required-mark">*</span>
+                    </label>
                     <input asp-for="Grade"
                            type="number"
                            min="0"
                            max="100"
                            step="1"
-                           class="form-control" />
-                    <span class="form-hint">
-                        Enter a whole-number grade between 0 and 100.
-                    </span>
-                    <span asp-validation-for="Grade"
-                          class="text-danger small"></span>
+                           class="form-control faculty-grade-input" />
+                    <span class="form-hint">Enter a whole-number grade between 0 and 100.</span>
+                    <span asp-validation-for="Grade" class="text-danger small"></span>
                 </div>
+            </div>
 
-                <hr class="my-4" />
-
-                <h2 class="form-section-title">
-                    <i class="bi bi-calendar3 me-2"></i>
-                    Academic Period
-                </h2>
+            <div class="faculty-form-section">
+                <div class="faculty-form-section-heading">
+                    <span class="faculty-form-section-icon">
+                        <i class="bi bi-calendar3"></i>
+                    </span>
+                    <div>
+                        <h3>Academic Period</h3>
+                        <p>Update the semester and school year.</p>
+                    </div>
+                </div>
 
                 <div class="row">
                     <div class="col-md-6 field-group">
-                        <label asp-for="Semester" class="form-label"></label>
+                        <label asp-for="Semester" class="form-label">
+                            Semester <span class="required-mark">*</span>
+                        </label>
                         <select asp-for="Semester" class="form-select">
                             <option>1st Semester</option>
                             <option>2nd Semester</option>
                             <option>Summer</option>
                         </select>
-                        <span asp-validation-for="Semester"
-                              class="text-danger small"></span>
+                        <span asp-validation-for="Semester" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6 field-group">
-                        <label asp-for="SchoolYear" class="form-label"></label>
+                        <label asp-for="SchoolYear" class="form-label">
+                            School Year <span class="required-mark">*</span>
+                        </label>
                         <input asp-for="SchoolYear"
                                class="form-control"
                                placeholder="2026-2027" />
-                        <span asp-validation-for="SchoolYear"
-                              class="text-danger small"></span>
+                        <span class="form-hint">Format: YYYY-YYYY</span>
+                        <span asp-validation-for="SchoolYear" class="text-danger small"></span>
                     </div>
                 </div>
+            </div>
 
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-lg"></i>
-                        Update Grade
-                    </button>
+            <div class="faculty-form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i>
+                    Update Grade Record
+                </button>
 
-                    <a asp-action="Index" class="btn btn-secondary">
-                        <i class="bi bi-x-lg"></i>
-                        Cancel
-                    </a>
-                </div>
-            </form>
-        </div>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
     </section>
 </div>
 

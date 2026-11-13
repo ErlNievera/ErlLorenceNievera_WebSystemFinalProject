@@ -3,150 +3,702 @@
 
 @{
     ViewData["Title"] = "Manage Grades";
+
+    var grades = Model ?? new List<StudentGradeManagement.Mvc.Models.Grades.GradeViewModel>();
+
+    var semesters = grades
+        .Select(x => x.Semester)
+        .Where(x => !string.IsNullOrWhiteSpace(x))
+        .Distinct()
+        .OrderBy(x => x)
+        .ToList();
+
+    var schoolYears = grades
+        .Select(x => x.SchoolYear)
+        .Where(x => !string.IsNullOrWhiteSpace(x))
+        .Distinct()
+        .OrderByDescending(x => x)
+        .ToList();
 }
 
-<div class="container py-4 py-lg-5">
-    <header class="page-heading">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-            <div>
-                <div class="page-eyebrow">
-                    <i class="bi bi-journal-bookmark-fill"></i>
-                    Faculty Portal
-                </div>
-                <h1 class="page-title">Grade Management</h1>
-                <p class="page-description">
-                    Add, review, and update student academic records.
-                </p>
-            </div>
+<div class="container py-4 py-lg-5 faculty-dashboard grade-management-page">
 
-            <a asp-action="Create" class="btn btn-primary">
-                <i class="bi bi-plus-lg"></i>
-                Add Grade
-            </a>
+    <!-- Page heading -->
+    <header class="faculty-page-heading">
+        <div>
+            <span class="faculty-eyebrow faculty-eyebrow-dark">
+                <i class="bi bi-journal-bookmark-fill"></i>
+                FACULTY PORTAL
+            </span>
+            <h1>Grade Management</h1>
+            <p>Organize, review, and manage student academic records.</p>
         </div>
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            Add Grade
+        </a>
     </header>
 
+    <!-- Feedback -->
     @if (TempData["Success"] is not null)
     {
-        <div class="state-message mb-3" role="status">
-            <i class="bi bi-check-circle-fill me-2"></i>
-            @TempData["Success"]
+        <div class="faculty-alert faculty-alert-success" role="status">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@TempData["Success"]</span>
         </div>
     }
 
     @if (TempData["Error"] is not null)
     {
-        <div class="state-message state-error mb-3" role="alert">
-            <i class="bi bi-exclamation-circle-fill me-2"></i>
-            @TempData["Error"]
+        <div class="faculty-alert faculty-alert-error" role="alert">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>@TempData["Error"]</span>
         </div>
     }
 
-    <section class="card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-                <div>
-                    <h2 class="card-heading">
-                        <i class="bi bi-table me-2"></i>
-                        Student Grade Records
-                    </h2>
-                    <p class="card-description">
-                        Review the details before editing or deleting a record.
-                    </p>
-                </div>
+    <!-- Grade directory -->
+    <section class="faculty-panel">
 
-                <span class="status-badge status-pass">
-                    @(Model?.Count ?? 0) records
-                </span>
+        <div class="faculty-panel-header grade-management-panel-header">
+            <div>
+                <span class="faculty-section-label">RECORD DIRECTORY</span>
+                <h2>Student Grade Records</h2>
+                <p>Search, filter, sort, and manage academic records.</p>
             </div>
 
+            <span class="faculty-record-pill">
+                <i class="bi bi-database"></i>
+                <span id="gradeRecordCount">@grades.Count</span>
+                Records
+            </span>
+        </div>
+
+        <!-- Search and filters -->
+        <div class="grade-management-toolbar">
+
+            <div class="grade-search-wrapper">
+                <label for="gradeTableSearch" class="visually-hidden">
+                    Search grade records
+                </label>
+
+                <div class="faculty-search-box grade-management-search">
+                    <i class="bi bi-search"></i>
+                    <input type="search"
+                           id="gradeTableSearch"
+                           placeholder="Search student, subject, or grade..."
+                           autocomplete="off"
+                           aria-label="Search grade records" />
+
+                    <button type="button"
+                            id="clearGradeSearch"
+                            class="grade-search-clear"
+                            aria-label="Clear search"
+                            hidden>
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grade-filter-controls">
+
+                <div class="grade-filter-item">
+                    <label for="semesterFilter">Semester</label>
+                    <select id="semesterFilter" class="form-select">
+                        <option value="">All semesters</option>
+                        @foreach (var semester in semesters)
+                        {
+                            <option value="@semester">@semester</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="grade-filter-item">
+                    <label for="schoolYearFilter">School Year</label>
+                    <select id="schoolYearFilter" class="form-select">
+                        <option value="">All school years</option>
+                        @foreach (var schoolYear in schoolYears)
+                        {
+                            <option value="@schoolYear">@schoolYear</option>
+                        }
+                    </select>
+                </div>
+
+                <button type="button"
+                        id="resetGradeFilters"
+                        class="btn btn-quiet grade-reset-button">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Result information -->
+        <div class="grade-result-toolbar">
+            <span id="gradeSearchSummary" aria-live="polite">
+                Showing @grades.Count records
+            </span>
+
+            <div class="grade-page-size">
+                <label for="gradePageSize">Rows per page</label>
+                <select id="gradePageSize" class="form-select form-select-sm">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="faculty-table-wrap">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table faculty-table grade-management-table"
+                       id="gradeManagementTable">
+
                     <thead>
                         <tr>
-                            <th scope="col">Student Number</th>
-                            <th scope="col">Student Name</th>
-                            <th scope="col">Subject</th>
-                            <th scope="col">Grade</th>
-                            <th scope="col">Remarks</th>
-                            <th scope="col">Semester</th>
-                            <th scope="col">School Year</th>
-                            <th scope="col">Actions</th>
+                            <th>
+                                <button type="button" class="grade-sort-button"
+                                        data-sort="studentNumber">
+                                    Student Number
+                                    <i class="bi bi-arrow-down-up"></i>
+                                </button>
+                            </th>
+                            <th>
+                                <button type="button" class="grade-sort-button"
+                                        data-sort="studentName">
+                                    Student
+                                    <i class="bi bi-arrow-down-up"></i>
+                                </button>
+                            </th>
+                            <th>
+                                <button type="button" class="grade-sort-button"
+                                        data-sort="subject">
+                                    Subject
+                                    <i class="bi bi-arrow-down-up"></i>
+                                </button>
+                            </th>
+                            <th>
+                                <button type="button" class="grade-sort-button"
+                                        data-sort="grade">
+                                    Grade
+                                    <i class="bi bi-arrow-down-up"></i>
+                                </button>
+                            </th>
+                            <th>Remarks</th>
+                            <th>
+                                <button type="button" class="grade-sort-button"
+                                        data-sort="semester">
+                                    Semester
+                                    <i class="bi bi-arrow-down-up"></i>
+                                </button>
+                            </th>
+                            <th>
+                                <button type="button" class="grade-sort-button"
+                                        data-sort="schoolYear">
+                                    School Year
+                                    <i class="bi bi-arrow-down-up"></i>
+                                </button>
+                            </th>
+                            <th class="text-end">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @if (Model == null || Model.Count == 0)
+
+                    <tbody id="gradeTableBody">
+
+                        @foreach (var item in grades)
                         {
-                            <tr>
-                                <td colspan="8" class="text-center py-5">
-                                    <i class="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
-                                    <strong>No grade records found.</strong>
-                                    <p class="text-muted small mb-0 mt-1">
-                                        Select Add Grade to create the first record.
-                                    </p>
+                            var failed = item.Remarks == "BEP/FAILED";
+
+                            <tr class="grade-data-row"
+                                data-student-number="@item.StudentNumber"
+                                data-student-name="@item.StudentName"
+                                data-subject="@item.SubjectCode @item.SubjectName"
+                                data-grade="@item.Grade"
+                                data-semester="@item.Semester"
+                                data-school-year="@item.SchoolYear">
+
+                                <td>
+                                    <span class="faculty-student-number">
+                                        @item.StudentNumber
+                                    </span>
+                                </td>
+
+                                <td class="faculty-student-name">
+                                    @item.StudentName
+                                </td>
+
+                                <td>
+                                    <strong>@item.SubjectCode</strong>
+                                    <small class="faculty-subject-name">
+                                        @item.SubjectName
+                                    </small>
+                                </td>
+
+                                <td>
+                                    <span class="faculty-grade-value">
+                                        @item.Grade
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="faculty-remark @(failed ? "remark-failed" : "remark-passed")">
+                                        <i class="bi @(failed ? "bi-exclamation-circle" : "bi-check-circle")"></i>
+                                        @item.Remarks
+                                    </span>
+                                </td>
+
+                                <td>@item.Semester</td>
+                                <td>@item.SchoolYear</td>
+
+                                <td>
+                                    <div class="faculty-row-actions">
+
+                                        <a asp-action="Edit"
+                                           asp-route-id="@item.GradeId"
+                                           class="btn btn-sm btn-outline-primary"
+                                           title="Edit grade record"
+                                           aria-label="Edit grade for @item.StudentName">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Edit
+                                        </a>
+
+                                        <form asp-action="Delete"
+                                              asp-route-id="@item.GradeId"
+                                              method="post"
+                                              class="grade-delete-form">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-danger grade-delete-trigger"
+                                                    data-student="@item.StudentName"
+                                                    data-subject="@item.SubjectCode"
+                                                    title="Delete grade record"
+                                                    aria-label="Delete grade for @item.StudentName">
+                                                <i class="bi bi-trash3"></i>
+                                                Delete
+                                            </button>
+                                        </form>
+
+                                    </div>
                                 </td>
                             </tr>
                         }
-                        else
+
+                        <tr id="noGradeSearchResults" hidden>
+                            <td colspan="8">
+                                <div class="faculty-empty-inline">
+                                    <i class="bi bi-search"></i>
+                                    <strong>No matching records</strong>
+                                    <span>Try changing your search or filters.</span>
+                                    <button type="button"
+                                            class="btn btn-quiet btn-sm mt-2"
+                                            id="emptyStateReset">
+                                        Clear filters
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        @if (grades.Count == 0)
                         {
-                            @foreach (var item in Model)
-                            {
-                                var failed = item.Remarks == "BEP/FAILED";
-
-                                <tr>
-                                    <td><strong>@item.StudentNumber</strong></td>
-                                    <td>@item.StudentName</td>
-                                    <td>
-                                        <strong>@item.SubjectCode</strong>
-                                        <div class="text-muted small">@item.SubjectName</div>
-                                    </td>
-                                    <td><strong>@item.Grade</strong></td>
-                                    <td>
-                                        <span class="status-badge @(failed ? "status-fail" : "status-pass")">
-                                            <i class="bi @(failed ? "bi-exclamation-circle" : "bi-check-circle")"></i>
-                                            @item.Remarks
-                                        </span>
-                                    </td>
-                                    <td>@item.Semester</td>
-                                    <td>@item.SchoolYear</td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <a asp-action="Edit"
-                                               asp-route-id="@item.GradeId"
-                                               class="btn btn-sm btn-outline-primary"
-                                               title="Edit this grade">
-                                                <i class="bi bi-pencil"></i>
-                                                Edit
-                                            </a>
-
-                                            <form asp-action="Delete"
-                                                  asp-route-id="@item.GradeId"
-                                                  method="post"
-                                                  onsubmit="return confirm('Are you sure you want to delete this grade record? This action cannot be undone.');">
-                                                @Html.AntiForgeryToken()
-
-                                                <button type="submit"
-                                                        class="btn btn-sm btn-outline-danger"
-                                                        title="Delete this grade">
-                                                    <i class="bi bi-trash3"></i>
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
+                            <tr id="emptyGradeRow">
+                                <td colspan="8">
+                                    <div class="faculty-empty-inline">
+                                        <i class="bi bi-inbox"></i>
+                                        <strong>No grade records yet</strong>
+                                        <span>Add your first student grade record to get started.</span>
+                                        <a asp-action="Create"
+                                           class="btn btn-primary btn-sm mt-2">
+                                            <i class="bi bi-plus-lg"></i>
+                                            Add Grade
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>
             </div>
         </div>
-    </section>
 
-    <a asp-controller="Dashboard"
-       asp-action="Faculty"
-       class="btn btn-quiet mt-3">
-        <i class="bi bi-arrow-left"></i>
-        Back to Dashboard
-    </a>
+        <!-- Pagination -->
+        <div class="grade-pagination-container" id="gradePaginationContainer">
+            <span id="gradePaginationInfo" aria-live="polite"></span>
+
+            <nav aria-label="Grade table pagination">
+                <ul class="pagination grade-pagination mb-0">
+                    <li class="page-item">
+                        <button type="button"
+                                class="page-link"
+                                id="gradePreviousPage"
+                                aria-label="Previous page">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                    </li>
+
+                    <li class="page-item active">
+                        <span class="page-link" id="gradeCurrentPage">1</span>
+                    </li>
+
+                    <li class="page-item">
+                        <button type="button"
+                                class="page-link"
+                                id="gradeNextPage"
+                                aria-label="Next page">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="faculty-panel-footer">
+            <span>Grade records are managed by authorized faculty members.</span>
+
+            <a asp-controller="Dashboard" asp-action="Faculty">
+                <i class="bi bi-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </div>
+
+    </section>
 </div>
+
+<!-- Delete confirmation modal -->
+<div class="modal fade"
+     id="deleteGradeModal"
+     tabindex="-1"
+     aria-labelledby="deleteGradeModalTitle"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content grade-delete-modal">
+
+            <div class="modal-body text-center p-4 p-md-5">
+
+                <div class="grade-delete-icon">
+                    <i class="bi bi-trash3"></i>
+                </div>
+
+                <h2 id="deleteGradeModalTitle">Delete grade record?</h2>
+
+                <p class="grade-delete-description">
+                    You are about to delete the grade record for:
+                </p>
+
+                <div class="grade-delete-details">
+                    <strong id="deleteStudentName"></strong>
+                    <span id="deleteSubjectCode"></span>
+                </div>
+
+                <p class="grade-delete-warning">
+                    This action cannot be undone.
+                </p>
+
+                <div class="grade-delete-actions">
+                    <button type="button"
+                            class="btn btn-quiet"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-danger"
+                            id="confirmGradeDelete">
+                        <i class="bi bi-trash3"></i>
+                        Delete Record
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            "use strict";
+
+            const table = document.getElementById("gradeManagementTable");
+
+            if (!table) return;
+
+            const tbody = document.getElementById("gradeTableBody");
+            const searchInput = document.getElementById("gradeTableSearch");
+            const clearSearchButton = document.getElementById("clearGradeSearch");
+            const semesterFilter = document.getElementById("semesterFilter");
+            const schoolYearFilter = document.getElementById("schoolYearFilter");
+            const pageSizeSelect = document.getElementById("gradePageSize");
+
+            const countElement = document.getElementById("gradeRecordCount");
+            const summaryElement = document.getElementById("gradeSearchSummary");
+            const paginationInfo = document.getElementById("gradePaginationInfo");
+            const currentPageElement = document.getElementById("gradeCurrentPage");
+
+            const previousButton = document.getElementById("gradePreviousPage");
+            const nextButton = document.getElementById("gradeNextPage");
+
+            const noResultsRow = document.getElementById("noGradeSearchResults");
+            const paginationContainer = document.getElementById("gradePaginationContainer");
+
+            const rows = Array.from(tbody.querySelectorAll(".grade-data-row"));
+
+            let currentPage = 1;
+            let sortColumn = "";
+            let sortDirection = "asc";
+            let pendingDeleteForm = null;
+
+            const deleteModalElement = document.getElementById("deleteGradeModal");
+            const deleteModal = deleteModalElement && window.bootstrap
+                ? bootstrap.Modal.getOrCreateInstance(deleteModalElement)
+                : null;
+
+            const normalize = value =>
+                (value ?? "").toString().trim().toLocaleLowerCase();
+
+            const getFilteredRows = () => {
+                const query = normalize(searchInput.value);
+                const semester = normalize(semesterFilter.value);
+                const schoolYear = normalize(schoolYearFilter.value);
+
+                return rows.filter(row => {
+                    const searchableText = normalize(row.textContent);
+
+                    const matchesSearch = !query || searchableText.includes(query);
+                    const matchesSemester = !semester ||
+                        normalize(row.dataset.semester) === semester;
+                    const matchesSchoolYear = !schoolYear ||
+                        normalize(row.dataset.schoolYear) === schoolYear;
+
+                    return matchesSearch && matchesSemester && matchesSchoolYear;
+                });
+            };
+
+            const sortRows = filteredRows => {
+                if (!sortColumn) return filteredRows;
+
+                return filteredRows.sort((a, b) => {
+                    const first = normalize(a.dataset[sortColumn]);
+                    const second = normalize(b.dataset[sortColumn]);
+
+                    let comparison;
+
+                    if (sortColumn === "grade") {
+                        comparison = Number(first) - Number(second);
+                    } else {
+                        comparison = first.localeCompare(second, undefined, {
+                            numeric: true,
+                            sensitivity: "base"
+                        });
+                    }
+
+                    return sortDirection === "asc" ? comparison : -comparison;
+                });
+            };
+
+            const updateSortIndicators = () => {
+                document.querySelectorAll(".grade-sort-button").forEach(button => {
+                    const icon = button.querySelector("i");
+                    const isActive = button.dataset.sort === sortColumn;
+
+                    button.classList.toggle("active", isActive);
+
+                    if (!icon) return;
+
+                    if (!isActive) {
+                        icon.className = "bi bi-arrow-down-up";
+                    } else {
+                        icon.className = sortDirection === "asc"
+                            ? "bi bi-sort-up"
+                            : "bi bi-sort-down";
+                    }
+                });
+            };
+
+            const renderTable = () => {
+                const filteredRows = sortRows(getFilteredRows());
+                const totalRecords = filteredRows.length;
+                const pageSize = Number(pageSizeSelect.value) || 10;
+                const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
+
+                currentPage = Math.min(currentPage, totalPages);
+
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = Math.min(startIndex + pageSize, totalRecords);
+
+                rows.forEach(row => {
+                    row.hidden = true;
+                });
+
+                filteredRows.slice(startIndex, endIndex).forEach(row => {
+                    row.hidden = false;
+                    tbody.insertBefore(row, noResultsRow);
+                });
+
+                if (countElement) {
+                    countElement.textContent = totalRecords;
+                }
+
+                if (summaryElement) {
+                    summaryElement.textContent =
+                        totalRecords === rows.length
+                            ? `Showing ${totalRecords} records`
+                            : `Showing ${totalRecords} of ${rows.length} records`;
+                }
+
+                if (paginationInfo) {
+                    paginationInfo.textContent = totalRecords === 0
+                        ? "No records to display"
+                        : `Showing ${startIndex + 1}–${endIndex} of ${totalRecords}`;
+                }
+
+                if (currentPageElement) {
+                    currentPageElement.textContent = currentPage;
+                }
+
+                if (previousButton) {
+                    previousButton.disabled = currentPage <= 1;
+                }
+
+                if (nextButton) {
+                    nextButton.disabled = currentPage >= totalPages;
+                }
+
+                if (noResultsRow) {
+                    noResultsRow.hidden = totalRecords !== 0 || rows.length === 0;
+                }
+
+                if (paginationContainer) {
+                    paginationContainer.hidden = rows.length === 0;
+                }
+
+                if (clearSearchButton) {
+                    clearSearchButton.hidden = searchInput.value.length === 0;
+                }
+
+                updateSortIndicators();
+            };
+
+            const resetFilters = () => {
+                searchInput.value = "";
+                semesterFilter.value = "";
+                schoolYearFilter.value = "";
+                currentPage = 1;
+                renderTable();
+                searchInput.focus();
+            };
+
+            searchInput.addEventListener("input", () => {
+                currentPage = 1;
+                renderTable();
+            });
+
+            clearSearchButton.addEventListener("click", () => {
+                searchInput.value = "";
+                currentPage = 1;
+                renderTable();
+                searchInput.focus();
+            });
+
+            semesterFilter.addEventListener("change", () => {
+                currentPage = 1;
+                renderTable();
+            });
+
+            schoolYearFilter.addEventListener("change", () => {
+                currentPage = 1;
+                renderTable();
+            });
+
+            pageSizeSelect.addEventListener("change", () => {
+                currentPage = 1;
+                renderTable();
+            });
+
+            document.getElementById("resetGradeFilters")
+                .addEventListener("click", resetFilters);
+
+            document.getElementById("emptyStateReset")
+                .addEventListener("click", resetFilters);
+
+            document.querySelectorAll(".grade-sort-button").forEach(button => {
+                button.addEventListener("click", () => {
+                    const selectedColumn = button.dataset.sort;
+
+                    if (sortColumn === selectedColumn) {
+                        sortDirection = sortDirection === "asc" ? "desc" : "asc";
+                    } else {
+                        sortColumn = selectedColumn;
+                        sortDirection = "asc";
+                    }
+
+                    currentPage = 1;
+                    renderTable();
+                });
+            });
+
+            previousButton.addEventListener("click", () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                }
+            });
+
+            nextButton.addEventListener("click", () => {
+                const totalPages = Math.ceil(
+                    getFilteredRows().length / (Number(pageSizeSelect.value) || 10)
+                );
+
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                }
+            });
+
+            // Delete confirmation
+            document.querySelectorAll(".grade-delete-trigger").forEach(button => {
+                button.addEventListener("click", () => {
+                    pendingDeleteForm = button.closest("form");
+
+                    document.getElementById("deleteStudentName").textContent =
+                        button.dataset.student || "Selected student";
+
+                    document.getElementById("deleteSubjectCode").textContent =
+                        button.dataset.subject || "Selected subject";
+
+                    if (deleteModal) {
+                        deleteModal.show();
+                    } else {
+                        const confirmed = window.confirm(
+                            "Are you sure you want to delete this grade record? This action cannot be undone."
+                        );
+
+                        if (confirmed && pendingDeleteForm) {
+                            pendingDeleteForm.submit();
+                        }
+                    }
+                });
+            });
+
+            document.getElementById("confirmGradeDelete")
+                .addEventListener("click", () => {
+                    if (!pendingDeleteForm) return;
+
+                    const formToSubmit = pendingDeleteForm;
+                    pendingDeleteForm = null;
+
+                    if (deleteModal) {
+                        deleteModal.hide();
+                    }
+
+                    formToSubmit.submit();
+                });
+
+            renderTable();
+        })();
+    </script>
+}

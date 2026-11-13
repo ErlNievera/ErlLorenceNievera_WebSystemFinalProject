@@ -1,8 +1,167 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<main class="home-page">
+
+    <section class="home-hero">
+        <div class="home-hero-content">
+            <span class="home-eyebrow">
+                <i class="bi bi-mortarboard-fill"></i>
+                STUDENT GRADE MANAGEMENT SYSTEM
+            </span>
+
+            <h1>
+                Your academic journey,
+                <span>organized in one place.</span>
+            </h1>
+
+            <p class="home-hero-description">
+                A centralized academic portal designed to make grade management
+                simpler, more accessible, and more organized for students and faculty.
+            </p>
+
+            <div class="home-hero-actions">
+                <a asp-area="Identity"
+                   asp-page="/Account/Login"
+                   class="btn home-primary-button">
+                    Sign in to your account
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+                <a href="#portal-features" class="btn home-secondary-button">
+                    Explore the portal
+                </a>
+            </div>
+
+            <div class="home-trust-note">
+                <i class="bi bi-shield-check"></i>
+                Secure access for students and faculty
+            </div>
+        </div>
+
+        <div class="home-hero-visual">
+            <div class="home-visual-decoration decoration-one"></div>
+            <div class="home-visual-decoration decoration-two"></div>
+
+            <div class="home-preview-card">
+                <div class="home-preview-top">
+                    <div class="home-preview-brand">
+                        <span class="home-preview-logo">
+                            <i class="bi bi-mortarboard-fill"></i>
+                        </span>
+                        <div>
+                            <strong>Academic Portal</strong>
+                            <small>Student Overview</small>
+                        </div>
+                    </div>
+                    <span class="home-preview-indicator"></span>
+                </div>
+
+                <div class="home-preview-welcome">
+                    <small>ACADEMIC RECORDS</small>
+                    <h3>Stay on track.</h3>
+                    <p>Keep your academic information organized.</p>
+                </div>
+
+                <div class="home-preview-stat">
+                    <div>
+                        <span>Grade records</span>
+                        <strong><i class="bi bi-journal-check"></i></strong>
+                    </div>
+                    <div>
+                        <span>Student profile</span>
+                        <strong><i class="bi bi-person-check"></i></strong>
+                    </div>
+                    <div>
+                        <span>Secure access</span>
+                        <strong><i class="bi bi-shield-lock"></i></strong>
+                    </div>
+                </div>
+
+                <div class="home-preview-footer">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Your academic portal, all in one place
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-features" id="portal-features">
+        <div class="home-section-heading">
+            <span class="home-section-eyebrow">PORTAL FEATURES</span>
+            <h2>Designed for your academic needs.</h2>
+            <p>
+                Dedicated tools that help students and faculty access
+                and manage academic information.
+            </p>
+        </div>
+
+        <div class="home-feature-grid">
+            <article class="home-feature-card">
+                <div class="home-feature-icon feature-indigo">
+                    <i class="bi bi-person-vcard"></i>
+                </div>
+                <h3>Student Portal</h3>
+                <p>
+                    Access your student profile and view your personal
+                    academic grade records.
+                </p>
+                <a asp-area="Identity"
+                   asp-page="/Account/Login">
+                    Access your account
+                    <i class="bi bi-arrow-up-right"></i>
+                </a>
+            </article>
+
+            <article class="home-feature-card">
+                <div class="home-feature-icon feature-teal">
+                    <i class="bi bi-journal-check"></i>
+                </div>
+                <h3>Grade Management</h3>
+                <p>
+                    Faculty members can create, review, update, and
+                    manage student grade records.
+                </p>
+                <a asp-area="Identity"
+                   asp-page="/Account/Login">
+                    Faculty sign in
+                    <i class="bi bi-arrow-up-right"></i>
+                </a>
+            </article>
+
+            <article class="home-feature-card">
+                <div class="home-feature-icon feature-blue">
+                    <i class="bi bi-shield-lock"></i>
+                </div>
+                <h3>Secure Access</h3>
+                <p>
+                    Protected account access and role-based permissions
+                    help keep academic records private.
+                </p>
+                <a asp-area="Identity"
+                   asp-page="/Account/Login">
+                    Sign in securely
+                    <i class="bi bi-arrow-up-right"></i>
+                </a>
+            </article>
+        </div>
+    </section>
+
+    <section class="home-cta">
+        <div>
+            <span>GET STARTED</span>
+            <h2>Access your academic portal.</h2>
+            <p>Sign in to view the tools available for your account.</p>
+        </div>
+
+        <a asp-area="Identity"
+           asp-page="/Account/Login"
+           class="btn home-cta-button">
+            Continue to Login
+            <i class="bi bi-arrow-right"></i>
+        </a>
+    </section>
+
+</main>

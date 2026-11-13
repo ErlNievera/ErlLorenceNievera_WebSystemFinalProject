@@ -3,213 +3,374 @@
     ViewData["Title"] = "Student Dashboard";
 }
 
-<div class="container py-4 py-lg-5">
-    <header class="page-heading">
-        <div class="page-eyebrow">
-            <i class="bi bi-grid-1x2-fill"></i>
-            Student Portal
-        </div>
-        <h1 class="page-title">My Academic Dashboard</h1>
-        <p class="page-description">
-            View your student information and monitor your academic performance.
-        </p>
-    </header>
+<div class="container-fluid px-3 px-lg-5 py-4 py-lg-5 student-dashboard">
 
-    <section class="card mb-4">
-        <div class="card-body">
-            <div class="d-flex align-items-center gap-3">
-                <div class="brand-icon flex-shrink-0">
-                    <i class="bi bi-person-vcard-fill"></i>
-                </div>
-                <div class="min-w-0">
-                    <span class="page-eyebrow mb-1">Student profile</span>
-                    <h2 class="card-heading" id="studentName">
-                        Loading student information...
-                    </h2>
-                    <p class="card-description mb-0">
-                        Student Number:
-                        <strong id="studentNumber">Loading...</strong>
-                    </p>
-                </div>
-            </div>
+    <!-- Welcome Header -->
+    <section class="student-welcome mb-4">
+        <div>
+            <span class="student-eyebrow">
+                <i class="bi bi-mortarboard-fill"></i>
+                STUDENT PORTAL
+            </span>
+            <h1 class="student-welcome-title">
+                Welcome back, <span id="welcomeName">Student</span>
+            </h1>
+            <p class="student-welcome-description">
+                Here's an overview of your academic progress and records.
+            </p>
+        </div>
+
+        <div class="welcome-icon">
+            <i class="bi bi-person-workspace"></i>
         </div>
     </section>
 
-    <section class="card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-                <div>
-                    <h2 class="card-heading">
-                        <i class="bi bi-journal-check me-2"></i>
-                        My Grades
-                    </h2>
-                    <p class="card-description">
-                        Your recorded subjects, grades, and academic remarks.
-                    </p>
-                </div>
-                <span class="status-badge status-pass">
-                    <i class="bi bi-lock-fill"></i>
-                    Read only
-                </span>
-            </div>
+    <!-- Profile Card -->
+    <section class="student-profile-card mb-4">
+        <div class="profile-icon">
+            <i class="bi bi-person-fill"></i>
+        </div>
 
-            <div id="gradesMessage"
-                 class="state-message"
-                 role="status"
-                 aria-live="polite">
-                <i class="bi bi-hourglass-split me-2"></i>
-                Loading your grades...
-            </div>
+        <div class="profile-information">
+            <span class="profile-label">STUDENT PROFILE</span>
+            <h2 id="studentName">Loading profile...</h2>
+            <p class="mb-0">
+                <i class="bi bi-card-text me-1"></i>
+                Student No. <strong id="studentNumber">—</strong>
+            </p>
+        </div>
 
-            <div class="table-responsive d-none" id="gradesTableContainer">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th scope="col">Subject Code</th>
-                            <th scope="col">Subject</th>
-                            <th scope="col">Grade</th>
-                            <th scope="col">Remarks</th>
-                            <th scope="col">Semester</th>
-                            <th scope="col">School Year</th>
-                        </tr>
-                    </thead>
-                    <tbody id="gradesTableBody"></tbody>
-                </table>
-            </div>
+        <div class="profile-status">
+            <span class="profile-status-dot"></span>
+            Student Account
         </div>
     </section>
+
+    <div id="profileMessage" class="student-message d-none mb-4" role="status"></div>
+
+    <!-- Academic Summary -->
+    <section class="mb-4">
+        <div class="section-heading mb-3">
+            <div>
+                <h2>Academic Overview</h2>
+                <p>Your current academic performance at a glance.</p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-6 col-xl-3">
+                <div class="academic-stat-card">
+                    <div class="academic-stat-icon icon-indigo">
+                        <i class="bi bi-journal-bookmark-fill"></i>
+                    </div>
+                    <span class="academic-stat-label">Total Subjects</span>
+                    <h3 id="totalSubjects">—</h3>
+                    <small>Recorded subjects</small>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl-3">
+                <div class="academic-stat-card">
+                    <div class="academic-stat-icon icon-blue">
+                        <i class="bi bi-bar-chart-fill"></i>
+                    </div>
+                    <span class="academic-stat-label">Grade Average</span>
+                    <h3 id="gradeAverage">—</h3>
+                    <small>Based on available grades</small>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl-3">
+                <div class="academic-stat-card">
+                    <div class="academic-stat-icon icon-teal">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <span class="academic-stat-label">Passing</span>
+                    <h3 id="passingCount">—</h3>
+                    <small>Grades of 75 and above</small>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl-3">
+                <div class="academic-stat-card">
+                    <div class="academic-stat-icon icon-red">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    </div>
+                    <span class="academic-stat-label">Failed</span>
+                    <h3 id="failedCount">—</h3>
+                    <small>Grades below 75</small>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Grades -->
+    <section class="student-grades-card">
+
+        <div class="grades-header">
+            <div>
+                <span class="section-eyebrow">ACADEMIC RECORDS</span>
+                <h2>My Grades</h2>
+                <p>Review your recorded subject grades and remarks.</p>
+            </div>
+
+            <span class="record-counter">
+                <i class="bi bi-database-check"></i>
+                <span id="visibleRecordCount">0</span> Records
+            </span>
+        </div>
+
+        <!-- Search -->
+        <div class="grades-toolbar">
+            <div class="grades-search">
+                <i class="bi bi-search"></i>
+                <input type="search"
+                       id="gradeSearch"
+                       class="form-control"
+                       placeholder="Search subject, semester, or school year..."
+                       aria-label="Search grade records" />
+            </div>
+        </div>
+
+        <!-- Loading / Error / Empty -->
+        <div id="gradesMessage" class="student-message text-center" role="status">
+            <i class="bi bi-arrow-repeat me-2"></i>
+            Loading your academic records...
+        </div>
+
+        <!-- Table -->
+        <div id="gradesTableContainer" class="table-responsive d-none">
+            <table class="table student-grades-table">
+                <thead>
+                    <tr>
+                        <th>Subject Code</th>
+                        <th>Subject Name</th>
+                        <th>Grade</th>
+                        <th>Remarks</th>
+                        <th>Semester</th>
+                        <th>School Year</th>
+                    </tr>
+                </thead>
+                <tbody id="gradesTableBody"></tbody>
+            </table>
+
+            <div id="noSearchResults" class="no-search-results d-none">
+                <i class="bi bi-search"></i>
+                <p>No matching grade records found.</p>
+            </div>
+        </div>
+
+    </section>
+
+    <div class="student-dashboard-footer">
+        <i class="bi bi-shield-check me-1"></i>
+        Your academic records are private and accessible only through your student account.
+    </div>
+
 </div>
 
 @section Scripts {
 <script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const profileUrl = '@Url.Action("GetMyProfile", "Dashboard")';
+    const gradesUrl = '@Url.Action("GetMyGrades", "Dashboard")';
+
+    const profileMessage = document.getElementById("profileMessage");
+    const gradesMessage = document.getElementById("gradesMessage");
+    const gradesContainer = document.getElementById("gradesTableContainer");
+    const gradesBody = document.getElementById("gradesTableBody");
+    const searchInput = document.getElementById("gradeSearch");
+
+    let allGrades = [];
+
+    function showMessage(element, message, isError = false) {
+        element.textContent = message;
+        element.classList.remove("d-none");
+        element.classList.toggle("student-message-error", isError);
+    }
+
+    function hideMessage(element) {
+        element.classList.add("d-none");
+    }
+
+    function createCell(value, className = "") {
+        const cell = document.createElement("td");
+        cell.textContent = value ?? "—";
+
+        if (className) {
+            cell.className = className;
+        }
+
+        return cell;
+    }
+
     function createRemarksBadge(remarks) {
         const badge = document.createElement("span");
         const failed = remarks === "BEP/FAILED";
 
-        badge.className = "status-badge " +
-            (failed ? "status-fail" : "status-pass");
+        badge.className = `grade-remarks ${failed ? "remarks-failed" : "remarks-passed"}`;
 
         const icon = document.createElement("i");
-        icon.className = failed
-            ? "bi bi-exclamation-circle"
-            : "bi bi-check-circle";
+        icon.className = `bi ${failed ? "bi-exclamation-circle" : "bi-check-circle"} me-1`;
 
         badge.appendChild(icon);
-        badge.appendChild(document.createTextNode(remarks ?? ""));
+        badge.appendChild(document.createTextNode(remarks || "N/A"));
 
         return badge;
     }
 
-    async function loadStudentProfile() {
-        const name = document.getElementById("studentName");
-        const number = document.getElementById("studentNumber");
-
+    async function loadProfile() {
         try {
-            const response = await fetch(
-                '@Url.Action("GetMyProfile", "Dashboard")',
-                {
-                    method: "GET",
-                    headers: { "Accept": "application/json" },
-                    credentials: "same-origin"
-                }
-            );
+            const response = await fetch(profileUrl, {
+                method: "GET",
+                credentials: "same-origin"
+            });
 
             if (!response.ok) {
-                throw new Error("Unable to retrieve student profile.");
+                throw new Error("Unable to load your student profile.");
             }
 
             const profile = await response.json();
 
-            name.textContent = profile.studentName ?? "Student";
-            number.textContent = profile.studentNumber ?? "Unavailable";
+            const name = profile.studentName || profile.fullName || "Student";
 
-        } catch (error) {
-            name.textContent = "Student information unavailable.";
-            number.textContent = "Unavailable";
-            console.error(error);
+            document.getElementById("studentName").textContent = name;
+            document.getElementById("welcomeName").textContent =
+                name.split(" ")[0];
+
+            document.getElementById("studentNumber").textContent =
+                profile.studentNumber || "Not available";
+
+            hideMessage(profileMessage);
+        }
+        catch (error) {
+            document.getElementById("studentName").textContent = "Unavailable";
+            showMessage(profileMessage, error.message, true);
         }
     }
 
-    async function loadMyGrades() {
-        const message = document.getElementById("gradesMessage");
-        const tableContainer = document.getElementById("gradesTableContainer");
-        const tableBody = document.getElementById("gradesTableBody");
+    function updateStatistics(grades) {
+        const numericGrades = grades
+            .map(grade => Number(grade.grade))
+            .filter(grade => Number.isFinite(grade) && grade >= 0 && grade <= 100);
 
-        try {
-            const response = await fetch(
-                '@Url.Action("GetMyGrades", "Dashboard")',
-                {
-                    method: "GET",
-                    headers: { "Accept": "application/json" },
-                    credentials: "same-origin"
-                }
+        const passing = numericGrades.filter(grade => grade >= 75).length;
+        const failed = numericGrades.filter(grade => grade < 75).length;
+
+        const average = numericGrades.length
+            ? numericGrades.reduce((total, grade) => total + grade, 0) / numericGrades.length
+            : null;
+
+        document.getElementById("totalSubjects").textContent = grades.length;
+        document.getElementById("gradeAverage").textContent =
+            average === null ? "—" : average.toFixed(2);
+
+        document.getElementById("passingCount").textContent = passing;
+        document.getElementById("failedCount").textContent = failed;
+    }
+
+    function renderGrades(grades) {
+        gradesBody.replaceChildren();
+
+        grades.forEach(grade => {
+            const row = document.createElement("tr");
+
+            row.appendChild(createCell(grade.subjectCode));
+            row.appendChild(createCell(grade.subjectName, "subject-name-cell"));
+
+            const gradeCell = createCell(
+                grade.grade === null || grade.grade === undefined
+                    ? "—"
+                    : grade.grade,
+                "grade-value-cell"
             );
 
-            if (response.status === 401 || response.status === 403) {
-                message.textContent =
-                    "You are not authorized to view these grades.";
-                message.classList.add("state-error");
-                return;
-            }
+            row.appendChild(gradeCell);
+
+            const remarksCell = document.createElement("td");
+            remarksCell.appendChild(
+                createRemarksBadge(grade.remarks || "N/A")
+            );
+
+            row.appendChild(remarksCell);
+            row.appendChild(createCell(grade.semester));
+            row.appendChild(createCell(grade.schoolYear));
+
+            gradesBody.appendChild(row);
+        });
+
+        document.getElementById("visibleRecordCount").textContent = grades.length;
+
+        document.getElementById("noSearchResults")
+            .classList.toggle("d-none", grades.length !== 0);
+    }
+
+    function filterGrades() {
+        const keyword = searchInput.value.trim().toLowerCase();
+
+        const filtered = allGrades.filter(grade => {
+            const searchableText = [
+                grade.subjectCode,
+                grade.subjectName,
+                grade.semester,
+                grade.schoolYear,
+                grade.remarks
+            ].join(" ").toLowerCase();
+
+            return searchableText.includes(keyword);
+        });
+
+        renderGrades(filtered);
+    }
+
+    async function loadGrades() {
+        try {
+            const response = await fetch(gradesUrl, {
+                method: "GET",
+                credentials: "same-origin"
+            });
 
             if (!response.ok) {
-                throw new Error("Unable to retrieve grades.");
+                throw new Error("Unable to load your grade records.");
             }
 
             const grades = await response.json();
 
-            if (!Array.isArray(grades) || grades.length === 0) {
-                message.textContent = "No grades available yet.";
+            if (!Array.isArray(grades)) {
+                throw new Error("The grade records response is invalid.");
+            }
+
+            allGrades = grades;
+
+            updateStatistics(allGrades);
+            renderGrades(allGrades);
+
+            hideMessage(gradesMessage);
+
+            if (grades.length === 0) {
+                showMessage(
+                    gradesMessage,
+                    "No academic grade records are available yet."
+                );
                 return;
             }
 
-            tableBody.replaceChildren();
-
-            grades.forEach(grade => {
-                const row = document.createElement("tr");
-
-                [
-                    grade.subjectCode,
-                    grade.subjectName,
-                    grade.grade,
-                    grade.remarks,
-                    grade.semester,
-                    grade.schoolYear
-                ].forEach((value, index) => {
-                    const cell = document.createElement("td");
-
-                    if (index === 3) {
-                        cell.appendChild(createRemarksBadge(value));
-                    } else if (index === 2) {
-                        const strong = document.createElement("strong");
-                        strong.textContent = value ?? "";
-                        cell.appendChild(strong);
-                    } else {
-                        cell.textContent = value ?? "";
-                    }
-
-                    row.appendChild(cell);
-                });
-
-                tableBody.appendChild(row);
-            });
-
-            message.textContent = "";
-            tableContainer.classList.remove("d-none");
-
-        } catch (error) {
-            message.textContent =
-                "Something went wrong while loading your grades. Please try again.";
-            message.classList.add("state-error");
-            console.error(error);
+            gradesContainer.classList.remove("d-none");
+        }
+        catch (error) {
+            showMessage(gradesMessage, error.message, true);
         }
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
-        await Promise.all([
-            loadStudentProfile(),
-            loadMyGrades()
-        ]);
-    });
+    searchInput.addEventListener("input", filterGrades);
+
+    Promise.all([
+        loadProfile(),
+        loadGrades()
+    ]);
+});
 </script>
 }
