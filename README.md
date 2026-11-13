@@ -1,34 +1,35 @@
 # Student Grade Management System
 
-A web-based academic grade management system built using **ASP.NET Core Web API, ASP.NET Core MVC, C#, JavaScript, and SQL Server**.
+A web-based academic grade management system developed using **ASP.NET Core Web API, ASP.NET Core MVC, C#, JavaScript, and Microsoft SQL Server**.
 
-The system provides separate experiences for faculty members and students. Faculty members can manage student grades, while students can securely view their own academic records.
+The system provides separate experiences for faculty members and students. Faculty members can manage student academic grades, while students can securely access their personal academic records.
 
 ## Features
 
-### Faculty
+### Faculty Portal
 - View student grade records.
-- Add new grades.
+- Add new grade records.
 - Update existing grades.
 - Delete grade records.
 - View available students.
 - Automatic server-side grade remarks calculation.
 
-### Students
+### Student Portal
 - Secure student login.
 - View personal student information.
-- View their own academic grades.
-- Dynamically load grades using JavaScript Fetch API.
-- Receive clear messages when records are unavailable.
+- View personal academic grades.
+- Dynamically retrieve grades using JavaScript Fetch API.
+- Display appropriate messages when records are unavailable.
 
 ### Security
 - ASP.NET Core Identity authentication.
 - Role-based authorization for Faculty and Student accounts.
 - JWT authentication for API requests.
+- Authenticated student ownership verification.
 - Students can only access their own academic records.
-- Grade ownership is determined using authenticated account information.
-- Server-side validation of grade values and remarks.
-- JWT tokens are not exposed to browser JavaScript or stored in local storage.
+- Server-side grade validation.
+- Server-side grade remarks calculation.
+- JWT tokens are handled server-side by the MVC application rather than exposed to browser JavaScript.
 
 ## Grade Remarks
 
@@ -41,7 +42,7 @@ The system provides separate experiences for faculty members and students. Facul
 | 75–79 | EP |
 | 0–74 | BEP |
 
-Remarks are calculated on the server. Client-submitted remarks are not trusted.
+Grade remarks are calculated by the server. Client-submitted remarks are not trusted.
 
 ## Technologies Used
 
@@ -51,54 +52,95 @@ Remarks are calculated on the server. Client-submitted remarks are not trusted.
 - JavaScript (Fetch API, async/await)
 - HTML and CSS
 - JSON
-- SQL Server
+- Microsoft SQL Server
 - Entity Framework Core
 - ASP.NET Core Identity
 - JWT Authentication
 - Postman
 
-## Requirements
+## Project Requirements
 
 - Visual Studio 2022 or a compatible .NET development environment
 - .NET 10 SDK
-- SQL Server 2019 or a compatible SQL Server version
+- Microsoft SQL Server 2019 or a compatible SQL Server version
 - SQL Server Management Studio (SSMS)
+- Git
 - Postman (for API testing)
+
+## Project Structure
+
+```text
+ErlLorenceNievera_WebSystemFinalProject/
+│
+├── StudentGradeManagement.Api/
+├── StudentGradeManagement.Application/
+├── StudentGradeManagement.Domain/
+├── StudentGradeManagement.Infrastructure/
+├── StudentGradeManagement.Mvc/
+│
+├── ErlLorenceNievera_WebSystemFinalProject.sln
+├── README.md
+└── .gitignore
+```
+
+## Installation and Setup
+
+### 1. Clone the Repository
+
+Open a terminal and execute:
+
+```powershell
+git clone https://github.com/ErlNievera/ErlLorenceNievera_WebSystemFinalProject.git
+
+cd ErlLorenceNievera_WebSystemFinalProject
+```
+
+### 2. Restore and Build the Solution
+
+```powershell
+dotnet restore .\ErlLorenceNievera_WebSystemFinalProject.sln
+
+dotnet build .\ErlLorenceNievera_WebSystemFinalProject.sln
+```
+
+Make sure the solution builds successfully before proceeding.
 
 ## Database Setup
 
-The project uses a SQL Server database named `StudentGradeManagementDB`.
+The application uses a SQL Server database named:
 
-The database is distributed separately as a **BACPAC file**. It is not included in this public GitHub repository because it contains student, faculty, and authentication records.
+```text
+StudentGradeManagementDB
+```
 
-### Obtain the Database
+The database is distributed separately as a BACPAC file. It is not included in the public GitHub repository because it contains academic records and authentication data.
 
-Request the database backup from the project author through an authorized private file-sharing link.
+### Obtain the Database Backup
 
-Do not upload the BACPAC file to this public repository.
+Request the `StudentGradeManagementDB.bacpac` file through the private file-sharing link provided by the project author.
 
-### Import the Database
+Do not upload the database backup to the public GitHub repository.
+
+### Import the Database Using SSMS
 
 1. Open SQL Server Management Studio.
 2. Connect to your SQL Server instance.
 3. Right-click **Databases**.
 4. Select **Import Data-tier Application**.
-5. Browse for the supplied `StudentGradeManagementDB.bacpac` file.
+5. Browse and select `StudentGradeManagementDB.bacpac`.
 6. Set the database name to `StudentGradeManagementDB`.
 7. Complete the import process.
-8. Verify that the database and its tables were created successfully.
+8. Verify that the database tables were created successfully.
 
-The BACPAC includes the academic tables and ASP.NET Core Identity tables, including existing account records and role assignments.
+The supplied BACPAC includes the academic tables and ASP.NET Core Identity tables, including existing account records and role assignments.
 
 ## Application Configuration
 
-Sensitive settings must be configured separately on each development computer using .NET User Secrets.
+Sensitive configuration must be stored using .NET User Secrets rather than committed to GitHub.
 
-Do not commit database credentials, JWT signing keys, or passwords to GitHub.
+### 1. Configure API User Secrets
 
-### Configure API User Secrets
-
-Open a terminal in the solution directory and run the following commands:
+Run the following commands from the solution directory:
 
 ```powershell
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=YOUR_SQL_SERVER;Database=StudentGradeManagementDB;Integrated Security=True;TrustServerCertificate=True;MultipleActiveResultSets=True" --project ".\StudentGradeManagement.Api\StudentGradeManagement.Api.csproj"
@@ -110,83 +152,106 @@ dotnet user-secrets set "DemoAccounts:InitialPassword" "YOUR-DEMO-ACCOUNT-PASSWO
 dotnet user-secrets set "DemoAccounts:ResetExistingPasswords" "false" --project ".\StudentGradeManagement.Api\StudentGradeManagement.Api.csproj"
 ```
 
-Replace the placeholders with your own configuration.
+Replace the placeholders with the correct SQL Server instance name and your own secure configuration values.
 
-For Windows Authentication, ensure your Windows account has permission to access the SQL Server database.
+For Windows Authentication, ensure that the Windows account running the application has permission to access the database.
 
-### Important Notes
+### 2. Important Account Configuration Notes
 
-- The API demo account seeder runs in the Development environment.
+- Demo account seeding runs when the API is running in the Development environment.
 - Existing account passwords are not reset when `DemoAccounts:ResetExistingPasswords` is set to `false`.
-- The imported database contains existing Identity password hashes and role assignments.
-- Keep the database records and account mappings intact when using the supplied database.
-- Never use production credentials or expose sensitive configuration in source control.
+- The supplied database contains existing Identity account records and password hashes.
+- Preserve the existing account records and their student/faculty mappings.
+- Use the appropriate existing demo account credentials when testing the application.
 
-### Configure the MVC Application
+### 3. Verify MVC API Configuration
 
-Ensure that the MVC application's configured API base URL points to the API address:
+The MVC application's API base URL is configured in:
+
+```text
+StudentGradeManagement.Mvc/appsettings.json
+```
+
+Default development API address:
 
 ```text
 http://localhost:5221/
 ```
 
-Check the `ApiSettings:BaseUrl` configuration before running the MVC project.
+Update this value if the API is running at a different address.
+
+**Security Reminder:** Never commit database passwords, JWT signing keys, demo passwords, or other sensitive credentials to GitHub.
 
 ## Running the Application
 
-The configured development addresses are:
+Start the Web API before starting the MVC application.
 
-| Application | Address |
-|---|---|
-| Web API | http://localhost:5221 |
-| API Swagger | http://localhost:5221/swagger |
-| MVC Website | http://localhost:5018 |
-| MVC HTTPS | https://localhost:7144 |
+### 1. Run the Web API
 
-### Start the API
-
-From the solution directory:
+Open a terminal in the solution directory:
 
 ```powershell
 dotnet run --project .\StudentGradeManagement.Api
 ```
 
-Run the API using the Development environment so the configured development seeding process can execute.
+Ensure the API runs in the Development environment so the development account seeding process can execute.
 
-### Start the MVC Application
+API address:
 
-Open another terminal:
+```text
+http://localhost:5221
+```
+
+Swagger documentation:
+
+```text
+http://localhost:5221/swagger
+```
+
+### 2. Run the MVC Application
+
+Open a second terminal in the solution directory:
 
 ```powershell
 dotnet run --project .\StudentGradeManagement.Mvc
 ```
 
-Open the MVC website using its configured local address.
+MVC development address:
 
-The MVC application communicates with the API through its configured HTTP client.
+```text
+http://localhost:5018
+```
+
+MVC HTTPS address:
+
+```text
+https://localhost:7144
+```
+
+The MVC application communicates with the Web API through its configured HTTP client.
 
 ## API Endpoints
 
 ### Authentication
 
-| Method | Endpoint | Purpose |
+| Method | Endpoint | Description |
 |---|---|---|
 | POST | `/api/Auth/login` | Authenticate a user |
 
-### Faculty
+### Faculty Endpoints
 
-| Method | Endpoint | Purpose |
+| Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/Grades` | Retrieve grades |
-| GET | `/api/Grades/{id}` | Retrieve a grade |
+| GET | `/api/Grades` | Retrieve grade records |
+| GET | `/api/Grades/{id}` | Retrieve a specific grade |
 | POST | `/api/Grades` | Create a grade |
 | PUT | `/api/Grades/{id}` | Update a grade |
 | DELETE | `/api/Grades/{id}` | Delete a grade |
-| GET | `/api/Grades/students` | Retrieve students |
+| GET | `/api/Grades/students` | Retrieve available students |
 
-### Student
+### Student Endpoints
 
-| Method | Endpoint | Purpose |
+| Method | Endpoint | Description |
 |---|---|---|
 | GET | `/api/Grades/my` | Retrieve authenticated student's grades |
 | GET | `/api/Grades/my/profile` | Retrieve authenticated student's profile |
@@ -195,12 +260,12 @@ The MVC application communicates with the API through its configured HTTP client
 
 API endpoints and security behavior are tested using Postman.
 
-Tests include:
+Testing includes:
 
 - Successful and unsuccessful authentication.
 - Faculty grade CRUD operations.
 - Grade validation for values outside 0–100.
-- Automatic remarks calculation.
+- Automatic grade remarks calculation.
 - Duplicate grade prevention.
 - Student access restrictions.
 - Student ownership verification.
@@ -211,4 +276,5 @@ Tests include:
 
 **Erl Lorence Nievera**
 
-Student Grade Management System — Web System Final Project
+Student Grade Management System  
+Web System Final Project
